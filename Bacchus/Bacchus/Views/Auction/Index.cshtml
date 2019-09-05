@@ -1,0 +1,31 @@
+﻿@model List<APIMessages.AuctionEntity>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>List of auctions</h2>
+
+<select id="categories" name="categories" class="form-control" multiple="multiple">
+    <option value="all">All</option>
+    @{List<string> list = new List<string>();
+        foreach (var item in Model)
+        {
+            list.Add(item.productCategory);
+        }
+        List<string> categories = list.Distinct().ToList();
+        }
+
+    @foreach (var item in categories)
+    {
+        <option value="@item">@item</option>
+    }
+</select>
+
+<ol>
+    @foreach (var item in Model)
+    {
+        <li>@string.Format("{0} {1} {2}", item.productName, item.productDescription, item.biddingEndDate)</li>
+    }
+</ol>
+
