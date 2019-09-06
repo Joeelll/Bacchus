@@ -4,7 +4,7 @@
     ViewBag.Title = "Index";
 }
 
-<h2 id="header" runat="server">List of auctions - All</h2>
+<h2>List of auctions</h2>
 
 <form method="post">
     <select id="categories" name="categories">
@@ -45,11 +45,11 @@
             <ol>
                 @foreach (var item in Model)
                 {
-                    if (selectedCategory == item.productCategory)
-                    {
+                if (selectedCategory == item.productCategory)
+                {
                         <li><a href="/Auction/@item.productID">@string.Format("{0} ({1}) {2}", item.productName, item.productDescription, item.biddingEndDate)</a></li>
                     }
-                }
+            }
             </ol>
 
         }
