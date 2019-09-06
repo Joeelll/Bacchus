@@ -19,6 +19,14 @@ namespace Bacchus.Controllers
             return View(auctions);
         }
 
+        public ActionResult AuctionDetail()
+        {
+            var productID = RouteData.Values["productID"].ToString();
+            var objAuction = GetAuctionsFromAPI().Find(p => p.productID == productID);
+            ViewBag.Auction = objAuction;
+            return View("~/Views/Auction/Auction.cshtml");
+        }
+
         private List<AuctionCategory> GetCategoriesFromList()
         {
             var resultList = new List<AuctionEntity>();

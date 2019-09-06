@@ -4,28 +4,64 @@
     ViewBag.Title = "Index";
 }
 
-<h2>List of auctions</h2>
+<h2 id="header" runat="server">List of auctions - All</h2>
 
-<select id="categories" name="categories" class="form-control" multiple="multiple">
-    <option value="all">All</option>
-    @{List<string> list = new List<string>();
-        foreach (var item in Model)
+<form method="post">
+    <select id="categories" name="categories">
+        <option value="all">All</option>
+
+        @{List<string> list = new List<string>();
+            foreach (var item in Model)
+            {
+                list.Add(item.productCategory);
+            }
+            List<string> categories = list.Distinct().ToList();
+        }
+
+        @foreach (var item in categories)
         {
-            list.Add(item.productCategory);
+            <option value="@item">@item</option>
         }
-        List<string> categories = list.Distinct().ToList();
+    </select>
+    <input type="submit" value="Submit" class="submit" />
+</form>
+
+@{
+    if (IsPost)
+    {
+        string selectedCategory = Request.Form["categories"];
+        if (selectedCategory == "all")
+        {
+            <ol>
+                @foreach (var item in Model)
+                {
+                    <li><a href="/Auction/@item.productID">@string.Format("{0} ({1}) {2}", item.productName, item.productDescription, item.biddingEndDate)</a></li>
+                }
+            </ol>
+
         }
+        else
+        {
+            <ol>
+                @foreach (var item in Model)
+                {
+                    if (selectedCategory == item.productCategory)
+                    {
+                        <li><a href="/Auction/@item.productID">@string.Format("{0} ({1}) {2}", item.productName, item.productDescription, item.biddingEndDate)</a></li>
+                    }
+                }
+            </ol>
 
-    @foreach (var item in categories)
-    {
-        <option value="@item">@item</option>
+        }
     }
-</select>
-
-<ol>
-    @foreach (var item in Model)
+    else
     {
-        <li>@string.Format("{0} {1} {2}", item.productName, item.productDescription, item.biddingEndDate)</li>
+        <ol>
+            @foreach (var item in Model)
+            {
+                <li><a href="/Auction/@item.productID">@string.Format("{0} ({1}) {2}", item.productName, item.productDescription, item.biddingEndDate)</a></li>
+            }
+        </ol>
     }
-</ol>
+}
 

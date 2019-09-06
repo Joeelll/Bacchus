@@ -1,0 +1,64 @@
+﻿@using System.Xml;
+
+@{
+    var objAuction = ViewBag.Auction;
+    if (objAuction == null)
+    {
+        <meta http-equiv='refresh' content='0; URL=../Auction'>
+    }
+    else
+    {
+        ViewBag.Title = "Auction";
+        Layout = "~/Views/Shared/_Layout.cshtml";
+
+        <a style="color:black; text-decoration:none" href="../Auction"><input type="Submit" value="Back to list"></a>
+
+        <h1>Auction</h1>
+        <h3>Name: @objAuction.productName</h3>
+        <h3>Description: @objAuction.productDescription</h3>
+        <h3>End Date: @objAuction.biddingEndDate</h3>
+
+        <form method="post">
+                Name: <input type="text" id="name" name="name"><br>
+                Price: <input type="text" id="price" name="price"><br>
+                <input type="submit" value="Bid" class="submit" />
+            </form>
+
+        if (IsPost)
+        {
+            string locationPath = "C:/BacchusBids/" + objAuction.productID + ".xml";
+            string name = Request.Form["name"];
+            string price = Request.Form["price"];
+            DateTime bidTime = DateTime.Now;
+
+            if (!File.Exists(locationPath))
+            {
+                Directory.CreateDirectory("C:/BacchusBids/");
+
+                XmlDocument doc = new XmlDocument();
+                XmlElement root = doc.CreateElement("Bids");
+                XmlElement bid = doc.CreateElement("Bid");
+                XmlElement bidderName = doc.CreateElement("Name");
+                XmlElement biddingPrice = doc.CreateElement("Price");
+
+                bid.AppendChild(bidderName);
+                bid.AppendChild(biddingPrice);
+                root.AppendChild(bid);
+                doc.AppendChild(root);
+                
+
+                doc.Save(locationPath);
+            }
+        }
+
+
+
+
+
+    }
+}
+
+
+
+
+
