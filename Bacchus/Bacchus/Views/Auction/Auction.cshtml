@@ -35,35 +35,45 @@
 
             //Kontrollib, et oksjoni aeg ei oleks lõppenud
             int value = DateTime.Compare(bidTime, objAuction.biddingEndDate);
-            if (value < 0)
+            if (value > 0)
             {
                 Response.Write("<script>alert('Bidding for this auction has ended');</script>");
             }
             else
             {
-                //Kui antud oksjoni IDle pole .xml faili siis teeb selle
-                if (!File.Exists(locationPath))
+                //Kontrollib, et pakkumise hind oleks õiges formaadis
+                decimal priceDecimal;
+                bool validPrice = decimal.TryParse(price, out priceDecimal);
+                if (validPrice == true)
                 {
-                    Directory.CreateDirectory("C:/BacchusBids/");
+                    //Kui antud oksjoni IDle pole .xml faili siis teeb selle
+                    if (!File.Exists(locationPath))
+                    {
+                        Directory.CreateDirectory("C:/BacchusBids/");
 
-                    XmlDocument doc = new XmlDocument();
-                    XmlElement root = doc.CreateElement("Bids");
+                        XmlDocument doc = new XmlDocument();
+                        XmlElement root = doc.CreateElement("Bids");
 
-                    doc.AppendChild(root);
+                        doc.AppendChild(root);
 
 
-                    doc.Save(locationPath);
+                        doc.Save(locationPath);
+                    }
+                    //Kirjutab pakkuja nime, hinna ja pakkumise aja xmli
+                    XmlDocument xd = new XmlDocument();
+                    xd.Load(locationPath);
+                    XmlNode n1 = xd.SelectSingleNode("//Bids");
+                    XmlDocument xd2 = new XmlDocument();
+                    xd2.LoadXml("<Bid><Name>" + Request.Form["name"] + "</Name><Price>" + Request.Form["price"] + "</Price><BidTime>" +
+                        bidTime + "</BidTime></Bid>");
+                    XmlNode n = xd.ImportNode(xd2.FirstChild, true);
+                    n1.AppendChild(n);
+                    xd.Save(locationPath);
                 }
-                //Kirjutab pakkuja nime, hinna ja pakkumise aja xmli
-                XmlDocument xd = new XmlDocument();
-                xd.Load(locationPath);
-                XmlNode n1 = xd.SelectSingleNode("//Bids");
-                XmlDocument xd2 = new XmlDocument();
-                xd2.LoadXml("<Bid><Name>" + Request.Form["name"] + "</Name><Price>" + Request.Form["price"] + "</Price><BidTime>" +
-                    bidTime + "</BidTime></Bid>");
-                XmlNode n = xd.ImportNode(xd2.FirstChild, true);
-                n1.AppendChild(n);
-                xd.Save(locationPath);
+                else
+                {
+                    Response.Write("<script>alert('Invalid price format. Example: 45.54');</script>");
+                }
             }
 
 
