@@ -19,36 +19,55 @@
         <h3>End Date: @objAuction.biddingEndDate</h3>
 
         <form method="post">
-                Name: <input type="text" id="name" name="name"><br>
-                Price: <input type="text" id="price" name="price"><br>
-                <input type="submit" value="Bid" class="submit" />
-            </form>
+            Name: <input type="text" id="name" name="name"><br>
+            Price: <input type="text" id="price" name="price"><br>
+            <input type="submit" value="Bid" class="submit" />
+        </form>
+
+        <asp:Label ID="errMsg" Text="" runat="server"></asp:Label>
 
         if (IsPost)
         {
             string locationPath = "C:/BacchusBids/" + objAuction.productID + ".xml";
             string name = Request.Form["name"];
             string price = Request.Form["price"];
-            DateTime bidTime = DateTime.Now;
+            DateTime bidTime = DateTime.UtcNow;
 
-            if (!File.Exists(locationPath))
+            //Kontrollib, et oksjoni aeg ei oleks lõppenud
+            int value = DateTime.Compare(bidTime, objAuction.biddingEndDate);
+            if (value < 0)
             {
-                Directory.CreateDirectory("C:/BacchusBids/");
-
-                XmlDocument doc = new XmlDocument();
-                XmlElement root = doc.CreateElement("Bids");
-                XmlElement bid = doc.CreateElement("Bid");
-                XmlElement bidderName = doc.CreateElement("Name");
-                XmlElement biddingPrice = doc.CreateElement("Price");
-
-                bid.AppendChild(bidderName);
-                bid.AppendChild(biddingPrice);
-                root.AppendChild(bid);
-                doc.AppendChild(root);
-                
-
-                doc.Save(locationPath);
+                Response.Write("<script>alert('Bidding for this auction has ended');</script>");
             }
+            else
+            {
+                //Kui antud oksjoni IDle pole .xml faili siis teeb selle
+                if (!File.Exists(locationPath))
+                {
+                    Directory.CreateDirectory("C:/BacchusBids/");
+
+                    XmlDocument doc = new XmlDocument();
+                    XmlElement root = doc.CreateElement("Bids");
+
+                    doc.AppendChild(root);
+
+
+                    doc.Save(locationPath);
+                }
+                //Kirjutab pakkuja nime, hinna ja pakkumise aja xmli
+                XmlDocument xd = new XmlDocument();
+                xd.Load(locationPath);
+                XmlNode n1 = xd.SelectSingleNode("//Bids");
+                XmlDocument xd2 = new XmlDocument();
+                xd2.LoadXml("<Bid><Name>" + Request.Form["name"] + "</Name><Price>" + Request.Form["price"] + "</Price><BidTime>" +
+                    bidTime + "</BidTime></Bid>");
+                XmlNode n = xd.ImportNode(xd2.FirstChild, true);
+                n1.AppendChild(n);
+                xd.Save(locationPath);
+            }
+
+
+
         }
 
 
